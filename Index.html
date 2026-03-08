@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>B4-Bank</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="container">
+    <h1>B4-Bank</h1>
+    
+    <!-- Carte bancaire animée -->
+    <div class="card" id="card">
+      <p>💳 Carte B4-Bank</p>
+      <p>Solde : <span id="balance">100</span> Civora</p>
+    </div>
+
+    <!-- Paiement sans contact -->
+    <div class="section">
+      <h2>Paiement sans contact</h2>
+      <input type="number" id="paymentAmount" placeholder="Montant">
+      <button onclick="payContact()">Payer</button>
+    </div>
+
+    <!-- Virements -->
+    <div class="section">
+      <h2>Virement</h2>
+      <input type="text" id="receiver" placeholder="Destinataire">
+      <input type="number" id="transferAmount" placeholder="Montant">
+      <button onclick="transfer()">Envoyer</button>
+    </div>
+
+    <!-- Mode banque -->
+    <div class="section">
+      <button onclick="addMoney()">Ajouter argent (Banque)</button>
+    </div>
+
+    <!-- Historique -->
+    <div class="section">
+      <h2>Historique</h2>
+      <ul id="history"></ul>
+    </div>
+
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
